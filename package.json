@@ -34,6 +34,11 @@
     "test:runtime": "npm run test:runtime:plugin && npm run test:runtime:control",
     "test:runtime:plugin": "node --experimental-strip-types --no-warnings scripts/runtime-smoke.ts",
     "test:runtime:control": "node --experimental-strip-types --no-warnings scripts/runtime-control.ts",
+    "verify:published-install": "node --experimental-strip-types --no-warnings scripts/verify-published-install.ts",
+    "verify:published-install:control": "node --experimental-strip-types --no-warnings scripts/verify-published-install-control.ts",
+    "publish:tree": "node --experimental-strip-types --no-warnings scripts/publish-tree.ts",
+    "publish:check": "node --experimental-strip-types --no-warnings scripts/publish-tree.ts --check",
+    "publish:rebuild": "node --experimental-strip-types --no-warnings scripts/rebuild-branch.ts",
     "typecheck": "tsc --noEmit",
     "check": "npm run typecheck && npm test"
   },

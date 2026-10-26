@@ -1,5 +1,7 @@
 # opencode-nvidia-provider
 
+[![CI](https://github.com/ioiddj/opencode-nvidia-provider/actions/workflows/ci.yml/badge.svg)](https://github.com/ioiddj/opencode-nvidia-provider/actions/workflows/ci.yml)
+
 An OpenCode V2 plugin that gives NVIDIA NIM requests a configurable retry policy. It handles rate limits (`429`), request timeouts (`408`), and temporary server failures (`5xx`) through OpenCode's provider retry hook, with bounded exponential backoff and optional respect for a provider-supplied retry delay.
 
 This plugin does **not** register a provider, store credentials, choose models, or move prompts. It only adjusts retry decisions for the provider IDs you configure.
@@ -233,6 +235,54 @@ must not load your plugins — otherwise it proves nothing about this plugin.
 
 The runtime check proves loading, setup, and hook registration. It does not send a
 live NVIDIA request; request-level behavior is covered by the unit tests.
+
+### Published install verification
+
+The runtime check loads a **checkout** of this repository. The published package
+is a different artifact: OpenCode installs it from GitHub, unpacks it into its
+own cache, and loads the unpacked copy. That path has its own gate:
+
+```sh
+OPENCODE_BIN=/path/to/opencode npm run verify:published-install
+```
+
+It performs the documented install in an isolated home
+(`opencode plugin add github:ioiddj/opencode-nvidia-provider`), then requires
+that the global configuration records the specifier, that the installer
+unpacked the package **without runtime dependencies**, and that a real
+OpenCode V2 server loads that unpacked copy from the cache. The control
+(`npm run verify:published-install:control`) requires the same gate to reject a
+package that cannot be installed, so a green result cannot come from a gate that
+never fails.
+
+This check needs network access to GitHub, and it installs the **published**
+repository — so it verifies what users get, not what is in this checkout. It is
+not part of CI for that reason.
+
+## Continuous integration
+
+Every push and pull request runs the same gates as the local workflow:
+
+- `check` — installs the pinned development dependencies, then runs the typechecker,
+  the test suite, and the mutation check.
+- `runtime` — installs OpenCode V2 2.1.4 and runs the runtime gate: the production
+  plugin must load and complete `setup()`, and the negative control fixture must be
+  rejected by the same gate.
+
+The workflow requests read-only repository permissions, and every action is pinned
+to a commit SHA rather than a tag.
+
+## Repository maintenance
+
+This repository is published through the GitHub REST API rather than by
+pushing, and the published tree is **verified** against the local commit
+rather than assumed. `npm run publish:check` reports the difference without
+changing anything; `npm run publish:rebuild` republishes the branch as a
+single clean commit and proves the result.
+
+See [docs/publishing.md](docs/publishing.md) for the procedure, the token
+requirements, and why the published and local commit SHAs are expected to
+differ while their trees are not.
 
 ## License
 
